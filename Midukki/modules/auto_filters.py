@@ -41,10 +41,10 @@ async def send_for_index(client, message):
         match = regex.match(message.text)
         if not match:
             return await message.reply('Invalid link')
-        chat_id = match.group(4)
-        last_msg_id = int(match.group(5))
+        chat_id = match[4]
+        last_msg_id = int(match[5])
         if chat_id.isnumeric():
-            chat_id = int(("-100" + chat_id))
+            chat_id = int(f"-100{chat_id}")
     elif message.forward_from_chat.type == enums.ChatType.CHANNEL:
         last_msg_id = message.forward_from_message_id
         chat_id = message.forward_from_chat.username or message.forward_from_chat.id
@@ -242,7 +242,7 @@ async def reset_template(client: Midukki_RoboT, message: message()):
         return
 
     await save_group_settings(grp_id, 'template', Customize.IMDB_TEMPLATE)
-    await sts.edit(f"""Successfully Restarted Autofilter""")
+    await sts.edit("""Successfully Restarted Autofilter""")
 
 
 @Midukki_RoboT.on_message(AutoFilter.d)
@@ -452,7 +452,7 @@ async def set_autodel(client: Midukki_RoboT, message: message()):
 
 @Midukki_RoboT.on_message(Admins.a)
 async def channel_info(client, message):
-           
+
     """Send basic information of channel"""
     if isinstance(Configs.CHANNELS, (int, str)):
         channels = [Configs.CHANNELS]
@@ -567,7 +567,7 @@ async def set_skip_number(client, message):
         except:
             return await message.reply("Skip number should be an integer.")
         await message.reply(f"Successfully set SKIP number as {skip}")
-        Index.CURRENT = int(skip)
+        Index.CURRENT = skip
     else:
         await message.reply("Give me a skip number")
 
@@ -661,19 +661,18 @@ async def get_result_file(client, query):
        file_size='' if size is None else size,
        file_caption='' if f_caption is None else f_caption
     )
- 
+
     try:
-        if Configs.AUTH_CHANNEL != 1:
-            if Configs.AUTH_CHANNEL and not await client.is_subscribed(client, query):
-                await query.answer(url=f"https://t.me/{Bots.BOT_USERNAME}?start=Midukki_-_-_{file_id}")
-                return
-            else:     
-                await client.send_cached_media(
-                    chat_id=query.from_user.id,
-                    file_id=file_id,
-                    caption=f_caption                    
-                )
-                await query.answer('Check PM, I have sent files in pm', show_alert=True)
+        if Configs.AUTH_CHANNEL == 1:     
+            await client.send_cached_media(
+                chat_id=query.from_user.id,
+                file_id=file_id,
+                caption=f_caption                    
+            )
+            await query.answer('Check PM, I have sent files in pm', show_alert=True)
+        elif Configs.AUTH_CHANNEL and not await client.is_subscribed(client, query):
+            await query.answer(url=f"https://t.me/{Bots.BOT_USERNAME}?start=Midukki_-_-_{file_id}")
+            return
         else:     
             await client.send_cached_media(
                 chat_id=query.from_user.id,
@@ -690,171 +689,145 @@ async def get_result_file(client, query):
 
 async def auto_filters(client: Midukki_RoboT, message: message()):
 
-    if 2 < len(message.text) < 100:    
-        btn = []
-        search = message.text
-        settings = await get_settings(message.chat.id)
-        
-        files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
+    if not 2 < len(message.text) < 100:
+        return
+    btn = []
+    search = message.text
+    settings = await get_settings(message.chat.id)
 
-        if not files:
-            if settings["spell_check"]:
-                await check_correct_spelling(message, settings)
-                return
+    files, offset, total_results = await get_search_results(search.lower(), offset=0, filter=True)
+
+    if not files:
+        if settings["spell_check"]:
+            await check_correct_spelling(message, settings)
             return
+        return
 
-        if files:
-            for file in files:
-                file_id = file.file_id
-                filesize = f"[{get_size(file.file_size)}]"
-                filename = f"{file.file_name}"
-                
-                if settings["buttons"]:
-                    if Configs.WEB_API:
-                        btn.append(
-                            [
-                                button()
-                                    (
-                                        f"{filesize} {filename}",
-                                            url=get_shortlink(f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}")
-                                    )
-                            ]
-                        )
-                    else:
-                        btn.append(
-                            [
-                                button()
-                                    (
-                                        f"{filesize} {filename}",
-                                            url=f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}"
-                                    )
-                            ]
-                        )
-                else:
-                    if Configs.WEB_API:
-                        btn.append(
-                            [
-                                button()
-                                    (
-                                        f"{filesize}",
-                                            url=await get_shortlink(f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}")
-                                    ),
-                                button()
-                                    (
-                                        f"{filename}",
-                                            url=await get_shortlink(f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}")
-                                    )
-                            ]
-                        )
-                    else:
-                        btn.append(
-                            [
-                                button()
-                                    (
-                                        f"{filesize}",
-                                            url=f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}"
-                                    ),
-                                button()
-                                    (
-                                        f"{filename}",
-                                            url=f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}"
-                                    )
-                            ]
-                        )
-                   
-        else:
-            return
+    for file in files:
+        file_id = file.file_id
+        filesize = f"[{get_size(file.file_size)}]"
+        filename = f"{file.file_name}"
 
-        if not btn:
-            return
-
-        if len(btn) > Configs.FILTER_RESULTS: 
-            btns = list(split_list(btn, Configs.FILTER_RESULTS)) 
-            keyword = f"{message.chat.id}-{message.id if message else None}"
-            Configs.FILTER_BUTTONS[keyword] = {
-                "total" : len(btns),
-                "buttons" : btns
-            }
-            data = Configs.FILTER_BUTTONS[keyword]
-            buttons = data['buttons'][0].copy()
-   
-            buttons.append(
-                [
-                    button()
-                        (
-                            f"📃 1/{data['total']}",
-                                callback_data="pages"
-                        ),
-                    button()
-                        (
-                            "🗑️",
-                                callback_data="close"
-                        ),
-                    button()
-                        (
-                            "➡",
-                                callback_data=f"nextgroup_0_{keyword}"
-                        )
-                ]
-            )
-            if settings["file_mode"]:
-                buttons.append(
+        if settings["buttons"]:
+            if Configs.WEB_API:
+                btn.append(
                     [
                         button()
                             (
-                                "🤖 Check My Pm 🤖",
-                                    url=f"https://telegram.dog/{Bots.BOT_USERNAME}"
+                                f"{filesize} {filename}",
+                                    url=get_shortlink(f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}")
                             )
                     ]
                 )
-            Del_Time = settings["auto_del"]  
-            try:
-                result = await message.reply_text(text=settings["template"].format(mention=user_mention(message), query=message.text, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username if message.from_user else 'Pr0fess0r_99'})"), reply_markup=markup()(buttons))
-                await asyncio.sleep(Del_Time)
-                await result.delete()
-            except Exception as e:
-                result = await message.reply_text(text=Customize.IMDB_TEMPLATE.format(mention=user_mention(message), query=message.text, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username if message.from_user else 'Pr0fess0r_99'})"), reply_markup=markup()(buttons))
-                await message.reply(e)
-                await asyncio.sleep(Del_Time)
-                await result.delete()
-
-        else:
-            buttons = btn
-            buttons.append(
-                [
-                    button()
-                        (
-                            "📃 Pages 1/1",
-                                callback_data="pages"
-                        ),
-                    button()
-                        (
-                            "Close 🗑️",
-                                callback_data="close"
-                        )
-                ]
-            )
-            if settings["file_mode"]:
-                buttons.append(
+            else:
+                btn.append(
                     [
                         button()
                             (
-                                "🤖 Check My Pm 🤖",
-                                    url=f"https://telegram.dog/{Bots.BOT_USERNAME}"
+                                f"{filesize} {filename}",
+                                    url=f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}"
                             )
                     ]
                 )
+        elif Configs.WEB_API:
+            btn.append(
+                [
+                    button()
+                        (
+                            f"{filesize}",
+                                url=await get_shortlink(f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}")
+                        ),
+                    button()
+                        (
+                            f"{filename}",
+                                url=await get_shortlink(f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}")
+                        )
+                ]
+            )
+        else:
+            btn.append(
+                [
+                    button()
+                        (
+                            f"{filesize}",
+                                url=f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}"
+                        ),
+                    button()
+                        (
+                            f"{filename}",
+                                url=f"http://telegram.dog/{Bots.BOT_USERNAME}?start=muhammedrk_-_-_{file_id}_-_-_{message.chat.id}"
+                        )
+                ]
+            )
 
-            Del_Time = settings["auto_del"]  
-            try:
-                result = await message.reply_text(text=settings["template"].format(mention=user_mention(message), query=message.text, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username if message.from_user else 'Pr0fess0r_99'})"), reply_markup=markup()(buttons))
-                await asyncio.sleep(Del_Time)
-                await result.delete()
-            except Exception as e:
-                result = await message.reply_text(text=Customize.IMDB_TEMPLATE.format(mention=user_mention(message), query=message.text, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username if message.from_user else 'Pr0fess0r_99'})"), reply_markup=markup()(buttons))
-                await message.reply(e)
-                await asyncio.sleep(Del_Time)
-                await result.delete()
+    if not btn:
+        return
+
+    if len(btn) > Configs.FILTER_RESULTS: 
+        btns = list(split_list(btn, Configs.FILTER_RESULTS))
+        keyword = f"{message.chat.id}-{message.id if message else None}"
+        Configs.FILTER_BUTTONS[keyword] = {
+            "total" : len(btns),
+            "buttons" : btns
+        }
+        data = Configs.FILTER_BUTTONS[keyword]
+        buttons = data['buttons'][0].copy()
+
+        buttons.append(
+            [
+                button()
+                    (
+                        f"📃 1/{data['total']}",
+                            callback_data="pages"
+                    ),
+                button()
+                    (
+                        "🗑️",
+                            callback_data="close"
+                    ),
+                button()
+                    (
+                        "➡",
+                            callback_data=f"nextgroup_0_{keyword}"
+                    )
+            ]
+        )
+    else:
+        buttons = btn
+        buttons.append(
+            [
+                button()
+                    (
+                        "📃 Pages 1/1",
+                            callback_data="pages"
+                    ),
+                button()
+                    (
+                        "Close 🗑️",
+                            callback_data="close"
+                    )
+            ]
+        )
+    if settings["file_mode"]:
+        buttons.append(
+            [
+                button()
+                    (
+                        "🤖 Check My Pm 🤖",
+                            url=f"https://telegram.dog/{Bots.BOT_USERNAME}"
+                    )
+            ]
+        )
+    Del_Time = settings["auto_del"]
+    try:
+        result = await message.reply_text(text=settings["template"].format(mention=user_mention(message), query=message.text, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username if message.from_user else 'Pr0fess0r_99'})"), reply_markup=markup()(buttons))
+        await asyncio.sleep(Del_Time)
+        await result.delete()
+    except Exception as e:
+        result = await message.reply_text(text=Customize.IMDB_TEMPLATE.format(mention=user_mention(message), query=message.text, group_name = f"[{message.chat.title}](t.me/{message.chat.username})" or f"[{message.chat.title}](t.me/{message.from_user.username if message.from_user else 'Pr0fess0r_99'})"), reply_markup=markup()(buttons))
+        await message.reply(e)
+        await asyncio.sleep(Del_Time)
+        await result.delete()
 
 def split_list(l, n):
     for i in range(0, len(l), n):
@@ -869,7 +842,7 @@ async def next_page_(message):
         return
 
     settings = await get_settings(message.message.chat.id)
-        
+
     if int(index) == int(data["total"]) - 2:
         buttons = data['buttons'][int(index)+1].copy()
         buttons.append(
@@ -891,24 +864,6 @@ async def next_page_(message):
                     )           
             ]
         )
-        if settings["file_mode"]:
-            buttons.append(
-                [
-                    button()
-                        (
-                            "🤖 𝙲𝙷𝙴𝙲𝙺 𝙼𝚈 𝙿𝙼 🤖",
-                                url=f"https://telegram.dog/{temp.Bot_Username}"
-                        )
-                ]
-            )
-        
-        await message.message.edit_message_reply_markup( 
-            reply_markup=markup()
-                (
-                    buttons
-                )
-        )
-        return
     else:
         buttons = data['buttons'][int(index)+1].copy()
         buttons.append(
@@ -935,24 +890,25 @@ async def next_page_(message):
                     )
             ]
         )
-        if settings["file_mode"]:
-            buttons.append(
-                [
-                    button()
-                        (
-                            "🤖 𝙲𝙷𝙴𝙲𝙺 𝙼𝚈 𝙿𝙼 🤖",
-                                url=f"https://telegram.dog/{temp.Bot_Username}"
-                        )
-                ]
-            )
-        
-        await message.message.edit_message_reply_markup( 
-            reply_markup=markup()
-                (
-                    buttons
-                )
+
+    if settings["file_mode"]:
+        buttons.append(
+            [
+                button()
+                    (
+                        "🤖 𝙲𝙷𝙴𝙲𝙺 𝙼𝚈 𝙿𝙼 🤖",
+                            url=f"https://telegram.dog/{temp.Bot_Username}"
+                    )
+            ]
         )
-        return
+
+    await message.message.edit_message_reply_markup( 
+        reply_markup=markup()
+            (
+                buttons
+            )
+    )
+    return
 
 async def back_page_(message):
     mrk, index, keyword = message.data.split("_")
@@ -963,7 +919,7 @@ async def back_page_(message):
         return
 
     settings = await get_settings(message.message.chat.id)
-        
+
     if int(index) == 1:
         buttons = data['buttons'][int(index)-1].copy()
         buttons.append(
@@ -985,24 +941,6 @@ async def back_page_(message):
                     )
             ]
         )
-        if settings["file_mode"]:
-            buttons.append(
-                [
-                    button()
-                        (
-                            "🤖 𝙲𝙷𝙴𝙲𝙺 𝙼𝚈 𝙿𝙼 🤖",
-                                url=f"https://telegram.dog/{temp.Bot_Username}"
-                        )
-                ]
-            )
-        
-        await message.message.edit_message_reply_markup( 
-            reply_markup=markup()
-                (
-                    buttons
-                )
-        )
-        return
     else:
         buttons = data['buttons'][int(index)-1].copy()
         buttons.append(
@@ -1030,25 +968,25 @@ async def back_page_(message):
                 ]
             )
 
-        if settings["file_mode"]:
-        
-            buttons.append(
-                [
-                    button()
-                        (
-                            "🤖 𝙲𝙷𝙴𝙲𝙺 𝙼𝚈 𝙿𝙼 🤖",
-                                url=f"https://telegram.dog/{temp.Bot_Username}"
-                        )
-                ]
-            )
 
-        await message.message.edit_message_reply_markup( 
-            reply_markup=markup()
-                (
-                    buttons
-                )
+    if settings["file_mode"]:
+        buttons.append(
+            [
+                button()
+                    (
+                        "🤖 𝙲𝙷𝙴𝙲𝙺 𝙼𝚈 𝙿𝙼 🤖",
+                            url=f"https://telegram.dog/{temp.Bot_Username}"
+                    )
+            ]
         )
-        return
+
+    await message.message.edit_message_reply_markup( 
+        reply_markup=markup()
+            (
+                buttons
+            )
+    )
+    return
 
 async def get_shortlink(link):
 
@@ -1063,9 +1001,8 @@ async def get_shortlink(link):
                 data = await response.json()
                 if data["status"] == "success":
                     return data['shortenedUrl']
-                else:
-                    logger.error(f"Error: {data['message']}")
-                    return link
+                logger.error(f"Error: {data['message']}")
+                return link
     except Exception as e:
         logger.error(e)
         return link

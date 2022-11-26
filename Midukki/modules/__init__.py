@@ -380,72 +380,72 @@ class vars(object):
 
 
 class CB:
-    def start_cb(client, query):
+    def start_cb(self, query):
         txt = Txt.START_TXT.format(bot=Bots.BOT_MENTION, mention=query.from_user.mention)            
         btn = markup()(vars.start_buttons)
         return btn, txt
         
-    def help_cb(client, query):
+    def help_cb(self, query):
         txt = Txt.HELP_TXT.format(bot=Bots.BOT_MENTION, mention=query.from_user.mention)
         btn = markup()(vars.help_buttons)
         return btn, txt
 
-    def about_cb(client, query):
+    def about_cb(self, query):
         txt = Txt.ABOUT_TXT.format(bot=Bots.BOT_MENTION, name=Bots.BOT_NAME, username=Bots.BOT_USERNAME, mention=query.from_user.mention)    
         btn = markup()(vars.start_emitter_btn)
         return btn, txt
 
-    def auto_help(client, query):
+    def auto_help(self, query):
         txt = Txt.AUTO_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def manual_help(client, query):
+    def manual_help(self, query):
         txt = Txt.MANUAL_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def info_help(client, query):
+    def info_help(self, query):
         txt = Txt.INFO_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def connect_help(client, query):
+    def connect_help(self, query):
         txt = Txt.CONNECTION_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def cap_help(client, query):
+    def cap_help(self, query):
         txt = Txt.CAP_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def spell_help(client, query):
+    def spell_help(self, query):
         txt = Txt.SPELL_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def mute_help(client, query):
+    def mute_help(self, query):
         txt = Txt.MUTE_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def ban_help(client, query):
+    def ban_help(self, query):
         txt = Txt.BAN_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def pin_help(client, query):
+    def pin_help(self, query):
         txt = Txt.PIN_TXT
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
    
-    def admin_panel(client, query):
+    def admin_panel(self, query):
         txt = Txt.ADMIN_PANEL
         btn = markup()(vars.help_emitter_btn)
         return btn, txt
 
-    def source_code(client, query):
+    def source_code(self, query):
         txt = Txt.SOURCE_TXT
         btn = markup()(vars.about_emitter_btn)
         return btn, txt

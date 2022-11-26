@@ -122,8 +122,7 @@ async def addfilter(client: Midukki_RoboT, message: Message):
         try:
             rm = message.reply_to_message.reply_markup
             btn = rm.inline_keyboard
-            msg = get_file_id(message.reply_to_message)
-            if msg:
+            if msg := get_file_id(message.reply_to_message):
                 fileid = msg.file_id
                 reply_text = message.reply_to_message.caption.html
             else:
@@ -207,7 +206,7 @@ async def get_all(client: Midukki_RoboT, message: Message):
         filterlist = f"Total number of filters in **{title}** : {count}\n\n"
 
         for text in texts:
-            keywords = " ×  `{}`\n".format(text)
+            keywords = f" ×  `{text}`\n"
 
             filterlist += keywords
 

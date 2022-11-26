@@ -8,12 +8,8 @@ routes = web.RouteTableDef()
 find = compile(r'^.\d+$')
 
 def who_is_creator(id1, id2):
-  # print(pass)
-  text = (
-   f"\nBot Created By {id2.first_name}" + "\n"
-   f"\nBot Deployed By {id1.first_name}"
-  )
-  return text
+  return (f"\nBot Created By {id2.first_name}" + "\n"
+          f"\nBot Deployed By {id1.first_name}")
     
 class Accounts(object):
     API_ID = int(environ.get("API_ID", 0))

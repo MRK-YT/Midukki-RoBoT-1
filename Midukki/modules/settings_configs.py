@@ -10,7 +10,7 @@ async def settings(client: Midukki_RoboT, message):
 
     if not userid:
         return await message.reply(f"You are anonymous admin. Use /connect {message.chat.id} in PM")
-    
+
     if message.chat.type == enums.ChatType.PRIVATE:
         grpid = await db.active_connection(str(userid))
         if grpid is not None:
@@ -60,42 +60,35 @@ async def setting_cb(client: Midukki_RoboT, query):
         await query.message.edit_reply_markup(reply_markup=markup()(keyboard))
 
 async def settings_keyboard(settings, grp_id):
-    buttons = [
-        [           
-            button()
-                (
-                    'Filter Button',
-                        callback_data=f'settings#buttons#{settings["buttons"]}#{grp_id}'
-                ),             
-            button()
-                (
-                    'Single' if settings["buttons"] else 'Double',
-                        callback_data=f'settings#buttons#{settings["buttons"]}#{grp_id}'
-                )              
+    return [
+        [
+            button()(
+                'Filter Button',
+                callback_data=f'settings#buttons#{settings["buttons"]}#{grp_id}',
+            ),
+            button()(
+                'Single' if settings["buttons"] else 'Double',
+                callback_data=f'settings#buttons#{settings["buttons"]}#{grp_id}',
+            ),
         ],
-        [  
-            button()
-                (
-                    'AutoFilter ',
-                        callback_data=f'settings#autofilter#{settings["autofilter"]}#{grp_id}'
-                ),             
-            button()
-                (
-                    '✅ Yes' if settings["autofilter"] else '❌ No',
-                        callback_data=f'settings#autofilter#{settings["autofilter"]}#{grp_id}'
-                )              
+        [
+            button()(
+                'AutoFilter ',
+                callback_data=f'settings#autofilter#{settings["autofilter"]}#{grp_id}',
+            ),
+            button()(
+                '✅ Yes' if settings["autofilter"] else '❌ No',
+                callback_data=f'settings#autofilter#{settings["autofilter"]}#{grp_id}',
+            ),
         ],
-        [ 
-            button()
-                (
-                    'Spell Check',                    
-                        callback_data=f'settings#spell_check#{settings["spell_check"]}#{grp_id}'
-                ),             
-            button()
-                (
-                    '✅ Yes' if settings["spell_check"] else '❌ No',
-                        callback_data=f'settings#spell_check#{settings["spell_check"]}#{grp_id}'
-                )              
-        ]
+        [
+            button()(
+                'Spell Check',
+                callback_data=f'settings#spell_check#{settings["spell_check"]}#{grp_id}',
+            ),
+            button()(
+                '✅ Yes' if settings["spell_check"] else '❌ No',
+                callback_data=f'settings#spell_check#{settings["spell_check"]}#{grp_id}',
+            ),
+        ],
     ]
-    return buttons
