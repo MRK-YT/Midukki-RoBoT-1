@@ -230,9 +230,9 @@ async def connections_callback_3(client, query):
         )
     else:
         await query.message.edit_text(
-            f"Some error occurred!!",
-            parse_mode=enums.ParseMode.MARKDOWN
+            "Some error occurred!!", parse_mode=enums.ParseMode.MARKDOWN
         )
+
     return await query.answer('Piracy Is Crime')
 
 
@@ -251,9 +251,9 @@ async def connections_callback_4(client, query):
         )
     else:
         await query.message.edit_text(
-            f"Some error occurred!!",
-            parse_mode=enums.ParseMode.MARKDOWN
+            "Some error occurred!!", parse_mode=enums.ParseMode.MARKDOWN
         )
+
         return await query.answer('Piracy Is Crime')
 
 async def connections_callback_5(client, query):    

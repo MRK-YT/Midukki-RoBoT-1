@@ -37,8 +37,7 @@ class Database:
         return bool(user)
 
     async def total_users_count(self):
-        count = await self.users.count_documents({})
-        return count
+        return await self.users.count_documents({})
 
     async def get_all_users(self):
         return self.users.find({})
@@ -55,10 +54,7 @@ class Database:
     
     async def get_chat(self, chat):
         chat = await self.groups.find_one({'id':int(chat)})
-        if not chat:
-            return False
-        else:
-            return chat.get('chat_status')
+        return chat.get('chat_status') if chat else False
     
     async def re_enable_chat(self, id):
         chat_status=dict(is_disabled=False, reason="")
@@ -69,8 +65,7 @@ class Database:
         await self.groups.update_one({'id': int(chat)}, {'$set': {'chat_status': chat_status}})
    
     async def total_chat_count(self):
-        count = await self.groups.count_documents({})
-        return count    
+        return await self.groups.count_documents({})    
 
     async def get_all_chats(self):
         return self.groups.find({})
@@ -98,9 +93,7 @@ class Database:
             'auto_del': Customize.AUTO_DEL_TIME  
         }
         chat = await self.groups.find_one({'id':int(id)})
-        if chat:
-            return chat.get('settings', default)
-        return default
+        return chat.get('settings', default) if chat else default
 
     # : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : : #
 
@@ -145,16 +138,14 @@ class Database:
         texts = []
         query = mycol.find()
         try:
-            for file in query:
-                text = file['text']
-                texts.append(text)
+            texts.extend(file['text'] for file in query)
         except:
             pass
         return texts
 
     async def delete_filter(self, message, text, group_id):
         mycol = self.filters[str(group_id)]
-    
+
         myquery = {'text':text }
         query = mycol.count_documents(myquery)
         if query == 1:
@@ -383,7 +374,7 @@ async def get_search_results(query, file_type=None, max_results=10, offset=0, fi
         raw_pattern = r'(\b|[\.\+\-_])' + query + r'(\b|[\.\+\-_])'
     else:
         raw_pattern = query.replace(' ', r'.*[\s\.\+\-_]')
-    
+
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except:
@@ -416,5 +407,4 @@ async def get_search_results(query, file_type=None, max_results=10, offset=0, fi
 async def get_file_details(query):
     filter = {'file_id': query}
     cursor = Media.find(filter)
-    filedetails = await cursor.to_list(length=1)
-    return filedetails
+    return await cursor.to_list(length=1)

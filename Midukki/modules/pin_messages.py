@@ -6,7 +6,7 @@ async def pin(_, message):
     if not message.reply_to_message:
         return
     args = message.text.lower().split()
-    notify = not any(arg in args for arg in ('loud', 'notify'))
+    notify = all(arg not in args for arg in ('loud', 'notify'))
     await message.reply_to_message.pin(disable_notification=notify)
 
 @Midukki_RoboT.on_message(Pin.b)

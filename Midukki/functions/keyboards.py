@@ -80,8 +80,7 @@ def parser(text, keyword):
         else:
             note_data += text[prev:to_check]
             prev = match.start(1) - 1
-    else:
-        note_data += text[prev:]
+    note_data += text[prev:]
 
     try:
         return note_data, buttons, alerts

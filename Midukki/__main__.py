@@ -18,7 +18,11 @@ async def start_command(client: Midukki_RoboT, message: message()):
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         if Configs.LOG_CHANNEL is not None:
-           await client.send_message(Configs.LOG_CHANNEL, "Name: {}\nId: `{}`".format(message.from_user.id, message.from_user.mention))
+            await client.send_message(
+                Configs.LOG_CHANNEL,
+                f"Name: {message.from_user.id}\nId: `{message.from_user.mention}`",
+            )
+
 
     mention = user_mention(message)
     bot_mention = Bots.BOT_MENTION
